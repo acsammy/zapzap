@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ZapZap</string>
+    <string name="botao_cadastrar">Cadastrar</string>
+
 </resources>
