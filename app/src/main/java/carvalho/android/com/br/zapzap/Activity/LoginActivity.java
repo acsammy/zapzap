@@ -10,9 +10,11 @@ import android.widget.EditText;
 import com.github.rtoshiro.util.format.SimpleMaskFormatter;
 import com.github.rtoshiro.util.format.text.MaskTextWatcher;
 
+import java.util.HashMap;
 import java.util.Random;
 
 import carvalho.android.com.br.zapzap.R;
+import carvalho.android.com.br.zapzap.helper.Preferencias;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -59,6 +61,12 @@ public class LoginActivity extends AppCompatActivity {
                 int numeroRandomico = random.nextInt(9999-1000)+1000;
 
                 String token = String.valueOf(numeroRandomico);
+
+                //Salvar os dados para Validação
+                Preferencias preferencias = new Preferencias(LoginActivity.this);
+                preferencias.salvarUsuarioPreferencias(nomeUsuario, telefoneSemFormatacao, token);
+
+                HashMap<String,String> usuario = preferencias.getDadosUsuario();
 
             }
         });
