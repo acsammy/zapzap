@@ -1,7 +1,12 @@
 package carvalho.android.com.br.zapzap.Activity;
 
+import android.Manifest;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,17 +19,21 @@ import java.util.HashMap;
 import java.util.Random;
 
 import carvalho.android.com.br.zapzap.R;
+import carvalho.android.com.br.zapzap.helper.Permissao;
 import carvalho.android.com.br.zapzap.helper.Preferencias;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText telefone, ddd, pais, nome;
     private Button cadastrar;
+    private String[] permissoesNecessarias= new String[]{Manifest.permission.SEND_SMS, Manifest.permission.INTERNET};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        Permissao.validaPermissoes(1,this,permissoesNecessarias);
 
         telefone = (EditText)findViewById(R.id.editTextTelefone);
         ddd = (EditText)findViewById(R.id.editTextDDD);
@@ -61,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
                 int numeroRandomico = random.nextInt(9999-1000)+1000;
 
                 String token = String.valueOf(numeroRandomico);
+                String mensagemEnvio = "ZapZap Código de Confirmação: " + token;
 
                 //Salvar os dados para Validação
                 Preferencias preferencias = new Preferencias(LoginActivity.this);
@@ -68,7 +78,44 @@ public class LoginActivity extends AppCompatActivity {
 
                 HashMap<String,String> usuario = preferencias.getDadosUsuario();
 
+                //Envio de SMS
+                boolean enviadoSMS = enviaSMS("+" + telefoneSemFormatacao, mensagemEnvio);
             }
         });
+    }
+
+    private boolean enviaSMS(String telefone, String mensagem){
+        try{
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(telefone, null, mensagem, null, null);
+            return true;
+
+        } catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        for (int resultado : grantResults){
+            if (resultado == PackageManager.PERMISSION_DENIED){
+                alertaValidacaoPermissao();
+            }
+        }
+    }
+
+    private void alertaValidacaoPermissao(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Permissões Negadas");
+        builder.setMessage("Para utilizar esse app, é necessário aceitar as permissões");
+        builder.setPositiveButton("CONFIRMAR", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

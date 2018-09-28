@@ -93,5 +93,5 @@
         android:textColor="@color/textColorPrimary"
         tools:layout_editor_absoluteX="147dp"
         tools:layout_editor_absoluteY="341dp"
-        tools:text="@string/botao_cadastrar" />
+        tools:text="Cadastrar" />
 </RelativeLayout>
